@@ -4,7 +4,7 @@
 
 1- Clone Application (front end)
 
-    git clone <your-repo-url>
+    git clone https://github.com/AhmedAbokhatwa/EMS-Vue.git
     cd employee-management-frontend
 
 2- Libraries
