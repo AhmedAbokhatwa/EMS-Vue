@@ -90,31 +90,38 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  let userRole = null;
+  let userRoles = [];
   const sid = localStorage.getItem('auth_sid');
   const userDataString = localStorage.getItem('user_data');
-    if (userDataString) {
+
+  if (userDataString) {
     try {
       const userData = JSON.parse(userDataString);
-      userRole = userData?.role || null;
+      console.log('userData roles:', userData?.role);
+
+      if (Array.isArray(userData?.role)) {
+        userRoles = userData.role.filter(r =>
+          !["System Manager", "All", "Guest"].includes(r)
+        ).map(r => r.toLowerCase());
+      }
+      
     } catch (error) {
       console.error("Invalid JSON in localStorage for 'user_data'", error);
     }
   }
-  
- 
-  
 
+  // Authentication check for sid
   if (to.meta.requiresAuth && !sid) {
-    next('/login')
-  } 
-  if (to.meta.roles && (!userRole || !to.meta.roles.includes(userRole.toLowerCase()))) {
+    return next('/login');
+  }
 
+  // Role-based authorization Role (admin , manager ,employee)
+  if (to.meta.roles && !userRoles.some(role => to.meta.roles.includes(role))) {
     return next('/not-authorized');
   }
-  else {
-    next()
-  }
-})
+
+  next();
+});
+
 
 export default router
